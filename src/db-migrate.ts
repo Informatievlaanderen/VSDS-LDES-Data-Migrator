@@ -81,7 +81,7 @@ interface State {
   lastSequenceNr: number,
 }
 
-const stateFile = 'state.json';
+const stateFile = './data/state.json';
 if (existsSync(stateFile)) {
   const data = await readFile(stateFile, { encoding: 'utf8' });
   const state = JSON.parse(data) as State;

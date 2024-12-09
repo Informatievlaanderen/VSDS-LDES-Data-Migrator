@@ -53,7 +53,7 @@ NODE_OPTIONS=--max_old_space_size=5000 && node dist/server.js --chunk-size=50000
 ```
 
 ### State Management
-Because the MongoDB database may be very large the migration process may take a long time. In addition, due to network or system unavailability the migration process may be interrupted abnormally. To prevent data loss and to allow resuming the migration process the Data Migrator automatically stores its state (the last processed data member) in a state file named `state.json` next to the Data Migrator binary. E.g.:
+Because the MongoDB database may be very large the migration process may take a long time. In addition, due to network or system unavailability the migration process may be interrupted abnormally. To prevent data loss and to allow resuming the migration process the Data Migrator automatically stores its state (the last processed data member) in a state file named `state.json` located in `./data/` relative to the Data Migrator binary. E.g.:
 ```json
 { "lastSequenceNr": 152684 }
 ```
@@ -61,5 +61,5 @@ Because the MongoDB database may be very large the migration process may take a 
 When running inside a cloud environment or a docker container, you need to use volume mapping to ensure this file survives between Data Migrator runs, e.g. (in a docker compose file):
 ```yaml
 volumes:
-  - ./migrator-state.json:/home/node/migrator/state.json:rw
+  - ./data/migrator:/home/node/migrator/data:rw
 ```

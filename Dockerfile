@@ -32,8 +32,8 @@ ENV SILENT=
 EXPOSE 80
 # install migrator
 ENV NODE_ENV=production
-RUN mkdir /home/node/migrator
-RUN chown node:node /home/node/migrator
+RUN mkdir -p /home/node/migrator/data
+RUN chown node:node -R /home/node/migrator
 WORKDIR /home/node/migrator
 COPY --chown=node:node --from=builder /build/package*.json ./
 COPY --chown=node:node --from=builder /build/dist/*.js ./
