@@ -44,7 +44,11 @@ if (!kafkaBroker) {
   exitWithError('missing value for mandatory argument "--kafka-broker".');
 }
 
-const kafkaTopic = args['kafka-topic'] || `${database}-members`;
+const kafkaTopic = args['kafka-topic'];
+if (!kafkaTopic) {
+  exitWithError('missing value for mandatory argument "--kafka-topic".');
+}
+
 const kafka = new Kafka({
   clientId: `${database}-migrator`,
   brokers: [kafkaBroker]

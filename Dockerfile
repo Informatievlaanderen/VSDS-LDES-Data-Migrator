@@ -20,12 +20,13 @@ RUN apt-get -y install dumb-init
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 # install package manager
 RUN npm install -g npm@${NPM_TAG}
-# set parameters
-ENV SCHEDULE=
+# mandatory parameters
 ENV MONGODB_URI=
 ENV MONGODB_DATABASE=
 ENV KAFKA_BROKER=
 ENV KAFKA_TOPIC=
+# optional parameters
+ENV SCHEDULE=
 ENV CHUNK_SIZE=
 ENV SILENT=
 EXPOSE 80
