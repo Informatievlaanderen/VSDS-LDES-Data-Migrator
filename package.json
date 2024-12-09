@@ -1,0 +1,40 @@
+{
+  "name": "ldes-data-migrator",
+  "version": "1.0.0",
+  "description": "LDES database migrator (MongoDB to Postgres)",
+  "main": "./dist/db-migrate.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "npm run build && node dist/db-migrate.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Informatievlaanderen/VSDS-LDES-Data-Migrator.git"
+  },
+  "keywords": [
+    "VSDS",
+    "LDESServer4J",
+    "database migrator",
+    "MongoDB",
+    "Postgres"
+  ],
+  "author": "Ranko Orlic",
+  "license": "EUPL-1.2",
+  "bugs": {
+    "url": "https://github.com/Informatievlaanderen/VSDS-LDES-Data-Migrator/issues"
+  },
+  "homepage": "https://github.com/Informatievlaanderen/VSDS-LDES-Data-Migrator/README.md",
+  "dependencies": {
+    "cron": "^3.2.1",
+    "kafkajs": "^2.2.4",
+    "minimist": "^1.2.8",
+    "mongodb": "^6.11.0"
+  },
+  "devDependencies": {
+    "@types/minimist": "^1.2.2",
+    "@types/node": "^22.10.1",
+    "@types/uuid": "^10.0.0",
+    "typescript": "^5.7.2"
+  }
+}
