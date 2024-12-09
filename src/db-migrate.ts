@@ -55,7 +55,22 @@ const kafka = new Kafka({
 })
 const producer = kafka.producer();
 
-process.on('SIGINT', closeGracefully);
+interface State {
+  lastSequenceNr: number,
+}
+
+const stateFile = './data/state.json';
+
+async function readState() {
+  const data = await readFile(stateFile, { encoding: 'utf8' });
+  const state = JSON.parse(data) as State;
+  lastSequenceNr = state.lastSequenceNr;
+}
+
+async function writeState() {
+  const data = JSON.stringify({ lastSequenceNr: lastSequenceNr });
+  await writeFile(stateFile, data, { encoding: 'utf8' });
+}
 
 async function setup() {
   await producer.connect();
@@ -65,9 +80,10 @@ async function setup() {
 async function teardown() {
   await mongo.close();
   await producer.disconnect();
-  const data = JSON.stringify({ lastSequenceNr: lastSequenceNr });
-  await writeFile(stateFile, data, { encoding: 'utf8' });
+  await writeState();
 }
+
+process.on('SIGINT', closeGracefully);
 
 async function closeGracefully(signal: any) {
   if (!silent) {
@@ -75,20 +91,6 @@ async function closeGracefully(signal: any) {
   }
   await teardown();
   process.exitCode = 0;
-}
-
-interface State {
-  lastSequenceNr: number,
-}
-
-const stateFile = './data/state.json';
-if (existsSync(stateFile)) {
-  const data = await readFile(stateFile, { encoding: 'utf8' });
-  const state = JSON.parse(data) as State;
-  lastSequenceNr = state.lastSequenceNr;
-  if (!silent) {
-    console.debug("Using lastSequenceNr from state: ", lastSequenceNr);
-  }
 }
 
 async function processMembers(collection: Collection<Member>) {
@@ -111,8 +113,10 @@ async function processMembers(collection: Collection<Member>) {
       await producer.send({ topic: kafkaTopic, messages: [{ value: x.model }] });
       lastSequenceNr = x.sequenceNr;
     };
+
     const sendTime = new Date().getTime();
     if (count) console.log(`Send ${count} members in ${sendTime - endTime} ms`);
+    await writeState();
 
     total += count;
     done = (count < chunkSize);
@@ -140,6 +144,14 @@ async function doWork() {
     } catch (error) {
       exitWithError(error);
     }
+  }
+}
+
+
+if (existsSync(stateFile)) {
+  await readState();
+  if (!silent) {
+    console.debug("Using lastSequenceNr from state: ", lastSequenceNr);
   }
 }
 
