@@ -93,6 +93,7 @@ if (existsSync(stateFile)) {
 
 async function processMembers(collection: Collection<Member>) {
   let done = false;
+  let total = 0;
 
   while (!done) {
     const startTime = new Date().getTime();
@@ -113,8 +114,11 @@ async function processMembers(collection: Collection<Member>) {
     const sendTime = new Date().getTime();
     console.log(`Send ${count} members in ${sendTime - endTime} ms`);
 
+    total += count;
     done = (count < chunkSize);
   }
+
+  return total;
 }
 
 let running = false;
@@ -126,9 +130,9 @@ async function doWork() {
         running = true;
         await setup();
         const startTime = new Date().getTime();
-        await processMembers(mongo.db(database).collection<Member>('ingest_ldesmember'));
+        const count = await processMembers(mongo.db(database).collection<Member>('ingest_ldesmember'));
         const endTime = new Date().getTime();
-        console.log(`Processed all available members in ${endTime - startTime} ms`);
+        console.info(`Processed ${count} members in ${endTime - startTime} ms`);
       } finally {
         await teardown();
         running = false;
@@ -141,7 +145,7 @@ async function doWork() {
 
 if (schedule) {
   const job = new CronJob(schedule, async () => doWork());
-  if (!silent) console.warn('Runs at: ', schedule);
+  if (!silent) console.info('Runs at: ', schedule);
   job.start();
 } else {
   doWork();
