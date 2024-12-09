@@ -51,3 +51,15 @@ If you want to process a large chunk size you may need to increase the memory av
 ```bash
 NODE_OPTIONS=--max_old_space_size=5000 && node dist/server.js --chunk-size=500000 --mongodb-uri="mongodb://localhost:27017" --mongodb-database="test" --kafka-broker="localhost:9092" --kafka-topic="test-ldes-members"
 ```
+
+### State Management
+Because the MongoDB database may be very large the migration process may take a long time. In addition, due to network or system unavailability the migration process may be interrupted abnormally. To prevent data loss and to allow resuming the migration process the Data Migrator automatically stores its state (the last processed data member) in a state file named `state.json` next to the Data Migrator binary. E.g.:
+```json
+{ "lastSequenceNr": 152684 }
+```
+
+When running inside a cloud environment or a docker container, you need to use volume mapping to ensure this file survives between Data Migrator runs, e.g. (in a docker compose file):
+```yaml
+volumes:
+  - ./migrator-state.json:/home/node/migrator/state.json:rw
+```
