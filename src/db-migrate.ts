@@ -104,7 +104,7 @@ async function processMembers(collection: Collection<Member>) {
     const endTime = new Date().getTime();
 
     const count = members.length;
-    console.log(`Cursor returned ${count} members in ${endTime - startTime} ms`);
+    if (count) console.log(`Cursor returned ${count} members in ${endTime - startTime} ms`);
 
     for (let index = 0; index < members.length; index++) {
       const x = members[index]!;
@@ -112,7 +112,7 @@ async function processMembers(collection: Collection<Member>) {
       lastSequenceNr = x.sequenceNr;
     };
     const sendTime = new Date().getTime();
-    console.log(`Send ${count} members in ${sendTime - endTime} ms`);
+    if (count) console.log(`Send ${count} members in ${sendTime - endTime} ms`);
 
     total += count;
     done = (count < chunkSize);
