@@ -99,29 +99,27 @@ async function processMembers(collection: Collection<Member>) {
 
   while (!done) {
     const startTime = new Date().getTime();
-    const members = await collection.find(
+    const cursor = collection.find(
       { sequenceNr: { $gt: lastSequenceNr } },
-      { sort: { sequenceNr: 1 }, limit: chunkSize }
-    ).toArray();
-    const endTime = new Date().getTime();
-
-    const count = members.length;
-    if (count) console.log(`Cursor returned ${count} members in ${endTime - startTime} ms`);
-
-    for (let index = 0; index < members.length; index++) {
-      const x = members[index]!;
-      await producer.send({ topic: kafkaTopic, messages: [{ value: x.model }] });
-      lastSequenceNr = x.sequenceNr;
-    };
-
-    const sendTime = new Date().getTime();
-    if (count) console.log(`Send ${count} members in ${sendTime - endTime} ms`);
-    await writeState();
-
-    total += count;
-    done = (count < chunkSize);
+      { sort: { sequenceNr: 1 }, limit: chunkSize, noCursorTimeout: true }
+    );
+    try {
+      const members = await cursor.toArray();
+      const count = members.length;
+      for (let index = 0; index < members.length; index++) {
+        const x = members[index]!;
+        await producer.send({ topic: kafkaTopic, messages: [{ value: x.model }] });
+        lastSequenceNr = x.sequenceNr;
+      };
+      const endTime = new Date().getTime();
+      console.log(`Chunck of ${count} members processed in ${endTime - startTime} ms`);
+      done = (count < chunkSize);
+      total += count;
+    } finally {
+      cursor.close();
+      await writeState();
+    }
   }
-
   return total;
 }
 
@@ -134,7 +132,8 @@ async function doWork() {
         running = true;
         await setup();
         const startTime = new Date().getTime();
-        const count = await processMembers(mongo.db(database).collection<Member>('ingest_ldesmember'));
+        const collection = mongo.db(database).collection<Member>('ingest_ldesmember');
+        const count = await processMembers(collection);
         const endTime = new Date().getTime();
         console.info(`Processed ${count} members in ${endTime - startTime} ms`);
       } finally {
