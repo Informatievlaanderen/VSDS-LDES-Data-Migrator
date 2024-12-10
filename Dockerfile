@@ -33,11 +33,14 @@ EXPOSE 80
 # install migrator
 ENV NODE_ENV=production
 RUN mkdir -p /home/node/migrator/data
+RUN mkdir -p /home/node/migrator/scripts
 RUN chown node:node -R /home/node/migrator
 WORKDIR /home/node/migrator
 COPY --chown=node:node --from=builder /build/package*.json ./
 COPY --chown=node:node --from=builder /build/dist/*.js ./
+COPY --chown=node:node --from=builder /build/scripts/*.sh ./scripts/
+RUN chmod +x ./scripts/*.sh
 RUN npm ci --omit=dev
 # run as node
 USER node
-CMD ["sh", "-c", "node ./db-migrate.js --host=0.0.0.0 --port=80 --silent=\"${SILENT}\" --schedule=\"${SCHEDULE}\" --chunk-size=\"${CHUNK_SIZE}\" --mongodb-uri=\"${MONGODB_URI}\" --mongodb-database=\"${MONGODB_DATABASE}\" --kafka-broker=\"${KAFKA_BROKER}\" --kafka-topic=\"${KAFKA_TOPIC}\""]
+CMD ["sh", "-c", "./scripts/setup.sh && node ./db-migrate.js --host=0.0.0.0 --port=80 --silent=\"${SILENT}\" --schedule=\"${SCHEDULE}\" --chunk-size=\"${CHUNK_SIZE}\" --mongodb-uri=\"${MONGODB_URI}\" --mongodb-database=\"${MONGODB_DATABASE}\" --kafka-broker=\"${KAFKA_BROKER}\" --kafka-topic=\"${KAFKA_TOPIC}\""]
