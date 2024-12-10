@@ -105,6 +105,7 @@ async function processMembers(collection: Collection<Member>) {
     );
     try {
       const members = await cursor.toArray();
+      const elapsedTime = new Date().getTime();
       const count = members.length;
       for (let index = 0; index < members.length; index++) {
         const x = members[index]!;
@@ -112,7 +113,13 @@ async function processMembers(collection: Collection<Member>) {
         lastSequenceNr = x.sequenceNr;
       };
       const endTime = new Date().getTime();
-      console.log(`Chunck of ${count} members processed in ${endTime - startTime} ms`);
+      const fetchDuration = elapsedTime - startTime;
+      const sendDuration = endTime - elapsedTime;
+      const totalDuration = endTime - startTime;
+      const message = count > 0
+        ? `Processed ${count} members in ${totalDuration} ms (read MongoDB: ${fetchDuration} ms, write Kafka: ${sendDuration} ms)`
+        : `No members processed in ${totalDuration} ms`;
+      console.log(message);
       done = (count < chunkSize);
       total += count;
     } finally {
