@@ -15,6 +15,8 @@ FROM node:22.12.0-bullseye-slim
 # note: trivy insists this to be on the same RUN line
 RUN apt-get -y update && apt-get -y upgrade
 RUN apt-get -y install apt-utils wget
+# install ssh client
+RUN apt-get -y install openssh-client
 # install signal-handler wrapper
 RUN apt-get -y install dumb-init
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
