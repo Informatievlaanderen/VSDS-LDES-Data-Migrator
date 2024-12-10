@@ -45,4 +45,4 @@ RUN chmod +x ./scripts/*.sh
 RUN npm ci --omit=dev
 # run as node
 USER node
-CMD ["sh", "-c", "./scripts/setup.sh && node ./db-migrate.js --host=0.0.0.0 --port=80 --silent=\"${SILENT}\" --schedule=\"${SCHEDULE}\" --chunk-size=\"${CHUNK_SIZE}\" --mongodb-uri=\"${MONGODB_URI}\" --mongodb-database=\"${MONGODB_DATABASE}\" --kafka-broker=\"${KAFKA_BROKER}\" --kafka-topic=\"${KAFKA_TOPIC}\""]
+CMD ["sh", "-c", "./scripts/setup.sh && node ./db-migrate.js --silent=\"${SILENT}\" --schedule=\"${SCHEDULE}\" --chunk-size=\"${CHUNK_SIZE}\" --mongodb-uri=\"${MONGODB_URI}\" --mongodb-database=\"${MONGODB_DATABASE}\" --kafka-broker=\"${KAFKA_BROKER}\" --kafka-topic=\"${KAFKA_TOPIC}\""]
