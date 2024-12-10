@@ -101,7 +101,7 @@ async function processMembers(collection: Collection<Member>) {
     const startTime = new Date().getTime();
     const cursor = collection.find(
       { sequenceNr: { $gt: lastSequenceNr } },
-      { sort: { sequenceNr: 1 }, limit: chunkSize, noCursorTimeout: true }
+      { sort: { sequenceNr: 1 }, limit: chunkSize }
     );
     try {
       const members = await cursor.toArray();
